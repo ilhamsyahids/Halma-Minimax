@@ -2,6 +2,8 @@ neutral = 0
 red = 1
 green = 2
 
+from Board import Board
+from Pawn import Pawn
 
 class Halma:
     def __init__(self, board_size=8):
@@ -15,17 +17,20 @@ class Halma:
             for j in range(self.board_size):
                 self.board[i][j] = self.get_home_info(i, j)
 
+        self.board = Board(self.board)
+        print(self.board)
+
     def move(self, from_x, to_x, from_y, to_y):
         self.board[to_x][to_y] = self.board[from_x][from_y]
         self.board[from_x][from_y] = 0
 
     def get_home_info(self, x, y):
         if x + y < 4:
-            return 1
+            return Pawn(x, y, 1)
         elif x + y > self.board_size + 2:
-            return 2
+            return Pawn(x, y, 2)
         else:
-            return 0
+            return Pawn(x, y)
 
     def is_on_board(self, x, y):
         return 0 <= x < self.board_size and 0 <= y < self.board_size
