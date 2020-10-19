@@ -6,4 +6,4 @@ class Pawn:
     self.kind = kind
 
   def __str__(self):
-    return chr(self.y + 65) + str(self.x + 1)
+    return chr(self.y + 65) + str(self.x + 1) + "(" + str(self.kind) + ")"
