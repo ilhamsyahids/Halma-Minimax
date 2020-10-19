@@ -1,4 +1,5 @@
 from math import sqrt
+import time
 
 cnt = [0, 0, 0, 0]
 
@@ -141,6 +142,23 @@ def find_distance(p1, p2):
 
 if __name__=="__main__":
     # ini buat nyoba aja
+    
+    # board = [[1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    #          [1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    #          [1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
+    #          [1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+    #          [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+    #          [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    #          [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    #          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2],
+    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
+    #          [0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2],
+    #          [0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2],
+    #          [0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2],
+    #          [0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2],
+    #          [0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2]]
     board = [[1,1,1,1,0,0,0,0],
              [1,1,1,0,0,0,0,0],
              [1,1,0,0,0,0,0,0],
@@ -149,9 +167,26 @@ if __name__=="__main__":
              [0,0,0,0,0,0,2,2],
              [0,0,0,0,0,2,2,2],
              [0,0,0,0,2,2,2,2]]
+             
+    start_awal = time.time()
+    turn = 1
+    for _ in range(55):
+        start = time.time()
+        tup = find_next_move(board, turn, using_local_search=True)
+        if tup == None:
+            break
+        print(tup)
+        board[tup[1][0]][tup[1][1]] = turn
+        board[tup[0][0]][tup[0][1]] = 0
+        turn = turn ^ 3
+        print(cnt)
+        end = time.time()
+        print(end-start)
+    end = time.time()
+    print(end-start_awal)
 
-    print(find_next_move(board, 1, using_local_search=True))
-    print(cnt)
+    for row in board:
+        print(row)
 
-
-# belum nge handle gerakan mundur, kemungkinan ga perlu mundur /?
+# belum bisa menang euy
+# mau tak ubah utility functionnya dulu
