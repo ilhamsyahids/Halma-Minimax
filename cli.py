@@ -1,11 +1,11 @@
-import halma
+import Halma
 
 class CLI:
     def __init__(self):
         # init settings
         self.board_size = 8
         self.time_limit = 60  # in seconds
-        self.human_player = halma.red
+        self.human_player = Halma.RED
 
         self.start_game()
 
@@ -39,7 +39,7 @@ class CLI:
         print()
 
     def start_game(self):
-        self.game = halma.Halma(self.board_size)
+        self.game = Halma.Halma(self.board_size)
 
 
 cli = CLI()

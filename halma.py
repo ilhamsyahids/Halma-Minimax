@@ -1,6 +1,6 @@
-neutral = 0
-red = 1
-green = 2
+NEUTRAL = 0
+RED = 1
+GREEN = 2
 
 from Board import Board
 from Pawn import Pawn
@@ -16,6 +16,10 @@ class Halma:
         for i in range(self.board_size):
             for j in range(self.board_size):
                 self.board[i][j] = self.get_home_info(i, j)
+
+        # set goal
+        self.goal_r = [i for row in self.board for i in row if i.kind == RED]
+        self.goal_g = [i for row in self.board for i in row if i.kind == GREEN]
 
         self.board = Board(self.board)
         print(self.board)
@@ -34,3 +38,9 @@ class Halma:
 
     def is_on_board(self, x, y):
         return 0 <= x < self.board_size and 0 <= y < self.board_size
+
+    def check_winner(self):
+        pass
+
+if __name__ == "__main__":
+    halma = Halma()
