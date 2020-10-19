@@ -12,7 +12,7 @@ def find_next_move(board, player_on_move, using_local_search=True):
     best_move: ((Xawal, Yawal), (Xakhir, Yakhir))
     '''
 
-    best_val, best_move = minimax(0, float("-inf"), float("inf"), True, player_on_move, board, using_local_search)    
+    _, best_move = minimax(0, float("-inf"), float("inf"), True, player_on_move, board, using_local_search)    
     return best_move 
     
 def minimax(depth, alpha, beta, is_max, player_on_move, board, using_local_search=True):
@@ -54,13 +54,13 @@ def minimax(depth, alpha, beta, is_max, player_on_move, board, using_local_searc
                             best_move = ((i, j), (move[0],move[1]))
                             best_val = val
             
-                        alpha = max(alpha, best_val); 
+                        alpha = max(alpha, best_val)
                     else:
                         if (val < best_val):
                             best_move = ((i, j), (move[0],move[1]))
                             best_val = val
 
-                        beta = min(beta, best_val); 
+                        beta = min(beta, best_val)
         
                     if (beta <= alpha):
                         return best_val, best_move
