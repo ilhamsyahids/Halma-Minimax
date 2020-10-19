@@ -42,7 +42,7 @@ class Halma:
 
     def move(self, point_from:Tuple, point_to:Tuple):
         self.board[point_to[0]][point_to[1]] = self.board[point_from[0]][point_from[1]]
-        self.board[point_from[0]][point_from[1]] = None
+        self.board[point_from[0]][point_from[1]] = Pawn(point_from[0], point_from[1])
 
     def get_home_info(self, x, y):
         if x + y < 4:
@@ -65,7 +65,7 @@ class Halma:
 
     def get_board_numeric(self):
         board = []
-        for row in board:
+        for row in self.board:
             row_el = []
             for pawn in row:
                 row_el.append(pawn.kind)
@@ -104,5 +104,6 @@ if __name__ == "__main__":
     arr = []
     halma.get_possible_move((3,0),arr,True)
     print(arr)
-    # halma.computer_turn()
-    # print(halma)
+    print(halma.get_board_numeric())
+    halma.computer_turn()
+    print(halma)

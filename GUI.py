@@ -114,7 +114,9 @@ class Window(object):
         self.mode = self.var_mode.get()
         self.time_limit = self.var_time_limit.get()
         self.human_player = self.var_human_player.get()
-        
+
+        self.halma = Halma.Halma(self.board_size, self.time_limit, self.human_player)
+
         self.frame_board = Frame(self.master)
         self.frame_board.place(anchor="center", relx=0.5, rely=0.5, width=400, height=400)
         self.frame_board.config(borderwidth=2, relief="solid")
@@ -122,10 +124,12 @@ class Window(object):
             self.frame_board.columnconfigure(i, weight=1)
             self.frame_board.rowconfigure(i, weight=1)
         tile_color = (BLUE_GRAY, LIGHT_BLUE_GRAY)
-        self.tiles = [[0 for i in range(self.board_size)] for i in range(self.board_size)]
+        self.tiles = [[None for i in range(self.board_size)] for i in range(self.board_size)]
         for i in range(self.board_size):
             for j in range(self.board_size):
-                self.tiles[i][j] = Label(self.frame_board, bg=tile_color[(i + j) % 2], bd=0, text=u"\u2B24", font=("Helvetica", int(40-1.6*self.board_size), "bold"), anchor="center")
+                kind = self.halma.board[i][j].kind
+                color = RED if kind == Halma.RED else GREEN if kind == Halma.GREEN else "black"
+                self.tiles[i][j] = Label(self.frame_board, bg=tile_color[(i + j) % 2], bd=0, fg=color, text=u"\u2B24", font=("Helvetica", int(40-1.6*self.board_size), "bold"), anchor="center")
                 self.tiles[i][j].grid(row=i, column=j, sticky="nesw")
                 self.tiles[i][j].config(borderwidth=2, relief="flat")
                 self.tiles[i][j].bind("<Enter>", partial(self.on_enter_tile, btn=self.tiles[i][j]))
