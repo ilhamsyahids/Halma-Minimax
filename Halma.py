@@ -22,15 +22,6 @@ class Halma:
             for j in range(self.board_size):
                 self.board[i][j] = self.get_home_info(i, j)
 
-        # set goal
-        self.goal_r = [i for row in self.board for i in row if i.kind == RED]
-        self.goal_g = [i for row in self.board for i in row if i.kind == GREEN]
-
-        # self.board = Board(self.board)    # kayaknya jadi susah gan kalau pakai ini
-        
-
-        # giliran pemain
-        self.turn = GREEN
 
     def __str__(self):
         s = ''
@@ -46,9 +37,9 @@ class Halma:
 
     def get_home_info(self, x, y):
         if x + y < 4:
-            return Pawn(x, y, 1)
+            return Pawn(x, y, RED)
         elif x + y > 2*(self.board_size-3):
-            return Pawn(x, y, 2)
+            return Pawn(x, y, GREEN)
         else:
             return Pawn(x, y)
 
@@ -56,12 +47,24 @@ class Halma:
         return 0 <= point[0] < self.board_size and 0 <= point[1] < self.board_size
 
     def check_winner(self):
-        if all(pawn.kind == RED for pawn in self.goal_g):
+        goal_red, goal_green = self.get_goal()
+        if all(pawn.kind == RED for pawn in goal_red):
             return RED
-        elif all(pawn.kind == GREEN for pawn in self.goal_r):
+        elif all(pawn.kind == GREEN for pawn in goal_green):
             return GREEN
         else:
             return None
+    
+    def get_goal(self):
+        goal_red = []
+        goal_green = []
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                if i + j > 2 * (self.board_size-3):
+                    goal_red.append(self.board[i][j])
+                if i + j < 4:
+                    goal_green.append(self.board[i][j])
+        return goal_red, goal_green
 
     def get_board_numeric(self):
         board = []

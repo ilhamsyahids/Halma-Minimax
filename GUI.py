@@ -161,7 +161,7 @@ class Window(object):
             self.move_bot(self.bot_player, using_ls)
     
     def run_bot_vs_bot(self):
-        if self.run_number < 30:  # ini cuma 30 turn, harusnya sampe ada yg menang / bisa di stop
+        if not self.halma.check_winner():  # ini cuma 30 turn, harusnya sampe ada yg menang / bisa di stop
             self.run_number += 1
             if self.run_number % 2 == 0:
                 self.play_bot_1()
