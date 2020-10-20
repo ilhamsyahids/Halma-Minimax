@@ -22,6 +22,10 @@ TILE_COLORS_RED = ("#f48fb1", "#f8bbd0")
 TILE_COLORS_GREEN = ("#aed581", "#c5e1a5")
 TARGET_COLORS = ("#000000", "#e57373", "#81c784")
 
+# TUPLES
+GAME_MODE = ("Minimax Bot vs Human", "Minimax+LS Bot vs Human", "Minimax vs Minimax+LS")
+TURN_LABEL = ("Red's Turn", "Green's Turn")
+TURN_LABEL_DESC = ("Human", "Minimax Bot", "Minimax + Local Search Bot")
 
 class Window(object):
 
@@ -55,9 +59,9 @@ class Window(object):
         self.var_mode = StringVar()
         self.var_mode.set("Minimax Bot vs Human")
         self.dropdown_mode = OptionMenu(self.frame_menu, self.var_mode,
-                                        "Minimax Bot vs Human",
-                                        "Minimax+LS Bot vs Human",
-                                        "Minimax vs Minimax+LS")
+                                        GAME_MODE[0],
+                                        GAME_MODE[1],
+                                        GAME_MODE[2])
         self.dropdown_mode.grid(row=i_row, column=0, sticky="we")
         self.frame_menu.columnconfigure(0, weight=1)
         i_row += 1
@@ -144,13 +148,87 @@ class Window(object):
         self.var_timer.set("-")
         self.timer = Label(self.frame_info, textvariable=self.var_timer, font=("Verdana", 10, "bold"))
         self.timer.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
 
+        ttk.Separator(self.frame_info, orient=HORIZONTAL).grid(row=i_row, column=0, sticky="we", pady=10)
+        i_row += 1
+
+        # TURN
+        self.var_turn = StringVar()
+        self.var_turn.set("Game not started")
+        self.label_turn = Label(self.frame_info, textvariable=self.var_turn, font=("Verdana", 10, "bold"))
+        self.label_turn.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        self.var_turn_desc = StringVar()
+        self.var_turn_desc.set("-")
+        self.label_turn_desc = Label(self.frame_info, textvariable=self.var_turn_desc, font=("Verdana", 8, "normal"))
+        self.label_turn_desc.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        ttk.Separator(self.frame_info, orient=HORIZONTAL).grid(row=i_row, column=0, sticky="we", pady=10)
+        i_row += 1
+
+        # TIME OUT BEHAVIOR
+        self.label_time_out_behavior = Label(self.frame_info, text="Time Out Behavior", font=("Verdana", 10, "bold"))
+        self.label_time_out_behavior.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        self.frame_time_out_behavior = Frame(self.frame_info)
+        self.frame_time_out_behavior.grid(row=i_row, column=0)
+        i_row += 1
+
+        self.var_time_out_behavior = IntVar()
+        self.var_time_out_behavior.set(0)
+
+        self.radio_time_out_behavior_skip = Radiobutton(self.frame_time_out_behavior, text="Skip", value=0,
+                                                        variable=self.var_time_out_behavior)
+        self.radio_time_out_behavior_skip.grid(row=0, column=0, sticky="we")
+        self.radio_time_out_behavior_random = Radiobutton(self.frame_time_out_behavior, text="Random", value=1,
+                                                          variable=self.var_time_out_behavior)
+        self.radio_time_out_behavior_random.grid(row=0, column=1, sticky="we")
+
+        ttk.Separator(self.frame_info, orient=HORIZONTAL).grid(row=i_row, column=0, sticky="we", pady=10)
+        i_row += 1
+        
+        # BOT DELAY
+        self.label_bot_delay = Label(self.frame_info, text="Bot Delay (milliseconds)", font=("Verdana", 10, "bold"))
+        self.label_bot_delay.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        self.label_bot_delay_desc = Label(self.frame_info, text="Move delay time for bot vs bot",
+                                           font=("Verdana", 8, "normal"))
+        self.label_bot_delay_desc.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        self.var_bot_delay_1 = IntVar()
+        self.var_bot_delay_1.set(200)
+        self.scale_bot_delay_1 = Scale(self.frame_info, variable=self.var_bot_delay_1, from_=0, to=1000, resolution=100,
+                                      orient=HORIZONTAL)
+        self.scale_bot_delay_1.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        Label(self.frame_info, text="Bot 1").grid(row=i_row, column=0, sticky="w")
+        i_row += 1
+
+        self.var_bot_delay_2 = IntVar()
+        self.var_bot_delay_2.set(500)
+        self.scale_bot_delay_2 = Scale(self.frame_info, variable=self.var_bot_delay_2, from_=0, to=1000, resolution=100,
+                                       orient=HORIZONTAL)
+        self.scale_bot_delay_2.grid(row=i_row, column=0, sticky="we")
+        i_row += 1
+
+        Label(self.frame_info, text="Bot 2").grid(row=i_row, column=0, sticky="w")
+        i_row += 1
+
+        
     def start_game(self):
         self.board_size = self.var_board_size.get()
         self.mode = self.var_mode.get()
         self.time_limit = self.var_time_limit.get()
-        self.human_player = self.var_human_player.get()
+        self.human_player = 3 if self.mode == GAME_MODE[2] else self.var_human_player.get()
         self.bot_player = 2 if self.human_player == 1 else 1
+        self.time_out_behavior = self.var_time_out_behavior.get()
 
         self.halma = Halma.Halma(self.board_size, self.time_limit, self.human_player)
 
@@ -190,11 +268,15 @@ class Window(object):
         else:
             self.var_timer.set(u"\u221e")
 
-        if self.mode == "Minimax vs Minimax+LS":
+        if self.mode == GAME_MODE[2]:
             self.run_bot_vs_bot()
         elif self.human_player == 2:  # bot jalan duluan
-            using_ls = self.mode == "Minimax+LS Bot vs Human"
+            using_ls = self.mode == GAME_MODE[1]
             self.move_bot(self.bot_player, using_ls)
+        else:
+            self.var_turn.set(TURN_LABEL[self.human_player-1])
+            self.var_turn_desc.set(TURN_LABEL_DESC[0])
+            self.label_turn['fg'] = RED if self.human_player == 1 else GREEN
 
     def update_timer(self):
         if (self.time_limit != 0):
@@ -203,14 +285,15 @@ class Window(object):
                 self.var_timer.set(time_left)
                 self.master.after(1000, self.update_timer)
             else:
-                self.move_random()
+                if self.time_out_behavior == 1:
+                    self.move_random()
                 # move bot   
-                using_ls = self.mode == "Minimax+LS Bot vs Human"
+                using_ls = self.mode == GAME_MODE[1]
                 self.move_bot(self.bot_player, using_ls)
                 self.update_timer()
 
     def run_bot_vs_bot(self):
-        if not self.halma.check_winner():  # ini cuma 30 turn, harusnya sampe ada yg menang / bisa di stop
+        if not self.halma.check_winner():
             self.run_number += 1
             if self.run_number % 2 == 0:
                 self.play_bot_1()
@@ -219,11 +302,16 @@ class Window(object):
 
     def play_bot_1(self):
         self.move_bot(1, False)
-        self.master.after(500, self.run_bot_vs_bot)
-
+        self.master.after(self.var_bot_delay_2.get(), self.run_bot_vs_bot)
+        self.var_turn.set(TURN_LABEL[0])
+        self.var_turn_desc.set(TURN_LABEL_DESC[1])
+        self.label_turn['fg'] = RED
     def play_bot_2(self):
         self.move_bot(2, True)
-        self.master.after(500, self.run_bot_vs_bot)
+        self.master.after(self.var_bot_delay_1.get(), self.run_bot_vs_bot)
+        self.var_turn.set(TURN_LABEL[1])
+        self.var_turn_desc.set(TURN_LABEL_DESC[2])
+        self.label_turn['fg'] = GREEN
 
     def on_enter_tile(self, e, x, y):  # tile button on hover enter event
         self.tiles[x][y].config(bg=DARK_GRAY)
@@ -255,7 +343,7 @@ class Window(object):
                 self.tiles[a][b].config(bg=self.get_tile_color(a, b))
                 self.selected_tile = (-1, -1)
                 # move bot   
-                using_ls = self.mode == "Minimax+LS Bot vs Human"
+                using_ls = self.mode == GAME_MODE[1]
                 self.move_bot(self.bot_player, using_ls)
             else:  # cuma pindah selection
                 if self.halma.board[x][y].kind == self.human_player:
@@ -284,18 +372,27 @@ class Window(object):
     def move(self, point_from, point_to):  # mindahin pawn di game dan di interface
         self.halma.move(point_from, point_to)
         winner = self.halma.check_winner()
-        if winner:
-            print("winner: ", "Red" if winner == 1 else "Green")
-            # END GAME
         self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
         self.tile_labels[point_from[0]][point_from[1]].config(fg=self.get_tile_color(point_from[0], point_from[1]))
         self.timer_start = timer()
+        self.winner = self.halma.check_winner()
+        if self.winner == 1:
+            self.var_turn.set("Red wins")
+        elif self.winner == 2:
+            self.var_turn.set("Green wins")
+            
+        self.var_turn.set(TURN_LABEL[1 if self.human_player == 1 else 0])
+        self.var_turn_desc.set(TURN_LABEL_DESC[1 if self.mode == GAME_MODE[0] else 2])
+        self.label_turn['fg'] = RED if self.human_player == 1 else GREEN
 
     def move_bot(self, bot_player, using_ls):
         bot_from, bot_to = algoritma.find_next_move(self.halma.get_board_numeric(), bot_player, using_ls)
         self.move(bot_from, bot_to)
-        
-    def move_random(self):
+        self.var_turn.set(TURN_LABEL[0 if self.human_player == 1 else 0])
+        self.var_turn_desc.set(TURN_LABEL_DESC[0])
+        self.label_turn['fg'] = RED if self.human_player == 1 else GREEN
+
+    def move_random(self):  # random move human player kalo waktu habis
         random.seed(timer())
         pawns_position = []
         for i in range(self.board_size):
@@ -307,8 +404,13 @@ class Window(object):
         self.halma.get_possible_move(selected_from, possible_moves)
         selected_to = random.choice(possible_moves)
         self.move(selected_from, selected_to)
+    
+    def skip_turn(self):
+        # move bot   
+        using_ls = self.mode == GAME_MODE[1]
+        self.move_bot(self.bot_player, using_ls)
 
-    def get_tile_color(self, x, y):
+    def get_tile_color(self, x, y):  # selang-seling warna tile
         home_info = self.halma.get_home_info(x, y).kind
         if home_info == 1:
             return TILE_COLORS_RED[(x + y) % 2]
