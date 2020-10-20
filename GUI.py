@@ -329,6 +329,8 @@ class Window(object):
             self.tiles[x][y].config(bg=MAGENTA)
 
     def on_click_tile(self, e, x, y):
+        if self.winner:
+            return
         if self.selected_tile == (x, y):  # deselect tile
             self.hide_possible_moves()
             self.tiles[x][y].config(bg=DARK_GRAY)
