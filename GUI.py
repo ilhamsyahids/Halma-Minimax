@@ -261,6 +261,7 @@ class Window(object):
                 self.tiles[i][j].bind("<Leave>", partial(self.on_leave_tile, x=i, y=j))  # hover leave
 
         self.run_number = 0
+        self.winner = 0
 
         if self.time_limit != 0:
             self.timer_start = timer()
@@ -293,7 +294,6 @@ class Window(object):
                 self.update_timer()
 
     def run_bot_vs_bot(self):
-        self.winner = self.halma.check_winner()
         if not self.winner:
             self.run_number += 1
             if self.run_number % 2 == 0:
