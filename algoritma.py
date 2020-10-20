@@ -47,12 +47,12 @@ def minimax(depth, alpha, beta, is_max, player_on_move, board, using_local_searc
                     if (player_on_move==1):
                         for k in range(len_board):
                             for l in range(len_board):
-                                if (board[k][l]==1 and is_daerah_player(2,k,l)):
+                                if (board[k][l]==1 and is_daerah_player(2,k,l,len_board)):
                                     cnt_in_goal+=1
                     else:
                         for k in range(len_board):
                             for l in range(len_board):
-                                if (board[k][l]==2 and is_daerah_player(1,k,l)):
+                                if (board[k][l]==2 and is_daerah_player(1,k,l,len_board)):
                                     cnt_in_goal+=1
 
                     if (cnt_in_goal==10):
@@ -118,10 +118,42 @@ def find_possible_moves(board, player_on_move, i, j, using_local_search=True):
         best_val = float("inf") 
         goal = (len_board-1, len_board-1) if player_on_move==1 else (0, 0)
         for move in list_possible_moves:
-            val = find_distance(move, goal)
-            if (val < best_val):
+            is_move_on_goal = False
+            if (player_on_move==1):
+                if (is_daerah_player(2,move[0],move[1], len_board)):
+                    is_move_on_goal = True
+            else:
+                if (is_daerah_player(1,move[0],move[1], len_board)):
+                    is_move_on_goal = True
+
+            is_move_before_on_goal = False
+            if (not (best_move == None)):
+                if (player_on_move==1):
+                    if (is_daerah_player(2,best_move[0],best_move[1], len_board)):
+                        is_move_on_goal = True
+                else:
+                    if (is_daerah_player(1,best_move[0],best_move[1], len_board)):
+                        is_move_on_goal = True
+
+            if (is_move_on_goal and (not (is_move_before_on_goal==None)) and is_move_before_on_goal):
+                val = find_distance(move, goal) - 50
+                if (val < best_val):
+                    best_move = move
+                    best_val = val
+            elif (is_move_on_goal):
+                val = find_distance(move, goal) - 50
                 best_move = move
                 best_val = val
+            elif ((not is_move_on_goal) and (not (is_move_before_on_goal==None)) and (not is_move_before_on_goal)):
+                val = find_distance(move, goal)
+                if (val < best_val):
+                    best_move = move
+                    best_val = val
+            elif((not is_move_on_goal) and (is_move_before_on_goal==None)):
+                val = find_distance(move, goal)
+                if (val < best_val):
+                    best_move = move
+                    best_val = val
 
         list_possible_moves = [best_move]
 
@@ -155,12 +187,12 @@ def utility_function(board, player_on_move):
         for j in range(len_board):
             if (board[i][j]==1): # pawn player 1
                 val += find_distance((i,j), (len_board-1,len_board-1))  
-                if (is_daerah_player(2, i, j)):
+                if (is_daerah_player(2, i, j, len_board)):
                     val -= 50 
                     cnt1 += 1    
             elif (board[i][j]==2): # pawn player 2
                 val -= find_distance((i,j), (0,0))
-                if (is_daerah_player(1, i, j)):
+                if (is_daerah_player(1, i, j, len_board)):
                     val += 50
                     cnt2 += 1
     
@@ -178,12 +210,12 @@ def utility_function(board, player_on_move):
 def find_distance(p1, p2):
     return sqrt((p1[0] - p2[0])*(p1[0] - p2[0]) + (p1[1] - p2[1])*(p1[1] - p2[1]))
 
-def is_daerah_player(player, x, y):
+def is_daerah_player(player, x, y, len_board):
     # asumsi koordinat valid, masuk ke area board
     if (player==1):
         return (x + y <= 3)
     else:
-        return (x + y >= 11)
+        return (x + y >= 2*(len_board-3)+1 )
 
 if __name__=="__main__":
     # ini buat nyoba aja
@@ -211,7 +243,7 @@ if __name__=="__main__":
     for i in range(60):
         print(i)
         start = time.time()
-        tup = find_next_move(board, turn, using_local_search=False)
+        tup = find_next_move(board, turn, using_local_search=True)
         if tup == None:
             break
         print(turn)
@@ -228,6 +260,3 @@ if __name__=="__main__":
     print(end-start_awal)
 
     
-
-# belum bisa menang euy
-# mau tak ubah utility functionnya dulu
