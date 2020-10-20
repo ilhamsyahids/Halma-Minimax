@@ -293,12 +293,18 @@ class Window(object):
                 self.update_timer()
 
     def run_bot_vs_bot(self):
-        if not self.halma.check_winner():
+        self.winner = self.halma.check_winner()
+        if not self.winner:
             self.run_number += 1
             if self.run_number % 2 == 0:
                 self.play_bot_1()
             else:
                 self.play_bot_2()
+        elif self.winner == 1:
+            self.var_turn.set("Red wins")
+        elif self.winner == 2:
+            self.var_turn.set("Green wins")
+
 
     def play_bot_1(self):
         self.move_bot(1, False)
