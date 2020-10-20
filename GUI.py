@@ -280,7 +280,7 @@ class Window(object):
             self.label_turn['fg'] = RED if self.human_player == 1 else GREEN
 
     def update_timer(self):
-        if (self.time_limit != 0):
+        if self.time_limit != 0 and not self.winner:
             time_left = self.time_limit - floor(timedelta(seconds=timer() - self.timer_start).total_seconds())
             if time_left >= 0:
                 self.var_timer.set(time_left)
@@ -377,15 +377,16 @@ class Window(object):
     
     def move(self, point_from, point_to):  # mindahin pawn di game dan di interface
         self.halma.move(point_from, point_to)
-        winner = self.halma.check_winner()
         self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
         self.tile_labels[point_from[0]][point_from[1]].config(fg=self.get_tile_color(point_from[0], point_from[1]))
-        self.timer_start = timer()
         self.winner = self.halma.check_winner()
         if self.winner == 1:
             self.var_turn.set("Red wins")
         elif self.winner == 2:
             self.var_turn.set("Green wins")
+        else:
+            self.timer_start = timer()
+
             
         self.var_turn.set(TURN_LABEL[1 if self.human_player == 1 else 0])
         self.var_turn_desc.set(TURN_LABEL_DESC[1 if self.mode == GAME_MODE[0] else 2])
