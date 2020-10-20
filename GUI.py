@@ -203,7 +203,7 @@ class Window(object):
 
         self.var_bot_delay_1 = IntVar()
         self.var_bot_delay_1.set(200)
-        self.scale_bot_delay_1 = Scale(self.frame_info, variable=self.var_bot_delay_1, from_=0, to=1000, resolution=100,
+        self.scale_bot_delay_1 = Scale(self.frame_info, variable=self.var_bot_delay_1, from_=100, to=1000, resolution=100,
                                       orient=HORIZONTAL)
         self.scale_bot_delay_1.grid(row=i_row, column=0, sticky="we")
         i_row += 1
@@ -213,7 +213,7 @@ class Window(object):
 
         self.var_bot_delay_2 = IntVar()
         self.var_bot_delay_2.set(500)
-        self.scale_bot_delay_2 = Scale(self.frame_info, variable=self.var_bot_delay_2, from_=0, to=1000, resolution=100,
+        self.scale_bot_delay_2 = Scale(self.frame_info, variable=self.var_bot_delay_2, from_=100, to=1000, resolution=100,
                                        orient=HORIZONTAL)
         self.scale_bot_delay_2.grid(row=i_row, column=0, sticky="we")
         i_row += 1
