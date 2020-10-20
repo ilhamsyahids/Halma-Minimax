@@ -427,6 +427,7 @@ class Window(object):
             return TILE_COLORS_GREEN[(x + y) % 2]
         return TILE_COLORS[(x + y) % 2]
 
-app = Tk()
-Window = Window(app)
-app.mainloop()
+if __name__ == "__main__":
+    app = Tk()
+    Window = Window(app)
+    app.mainloop()

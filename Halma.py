@@ -3,7 +3,6 @@ RED = 1
 GREEN = 2
 MOVEMENTS = [(1,0), (1,1), (0,1), (-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
 
-from Board import Board
 from Pawn import Pawn
 from typing import Tuple
 import algoritma
@@ -43,27 +42,6 @@ class Halma:
         else:
             return Pawn(x, y)
 
-    def is_valid_move(self, point_from, point_to):
-        kind_from = self.board[point_from[0]][point_from[1]].kind
-        kind_to = self.board[point_to[0]][point_to[1]].kind
-        res = kind_to == NEUTRAL
-        if res:
-            if kind_from==RED:
-                # udah masuk target, gak boleh keluar dari target
-                if point_from[0]+point_from[1] > 2*(self.board_size-3):
-                    res = point_to[0]+point_to[1] > 2*(self.board_size-3)
-                # udah keluar home, gak boleh masuk ke home
-                elif not (point_from[0]+point_from[1]<4):
-                    res = not (point_to[0]+point_to[1]<4)
-            elif kind_from==GREEN:
-                # udah masuk target, gak boleh keluar dari target
-                if point_from[0]+point_from[1]<4:
-                    res = point_to[0]+point_to[1]<4
-                # udah keluar home, gak boleh masuk ke home
-                elif not (point_from[0]+point_from[1] > 2*(self.board_size-3)):
-                    res = not (point_to[0]+point_to[1] > 2*(self.board_size-3))
-        return res
-
     def is_on_board(self, point):
         return 0 <= point[0] < self.board_size and 0 <= point[1] < self.board_size
 
@@ -102,7 +80,7 @@ class Halma:
             # cek apa di dalam board
             if self.is_on_board(point_to):
                 # kalau sampingnya kosong, append jika adj true
-                if self.is_valid_move(point, point_to):
+                if self.board[point_to[0]][point_to[1]].kind == NEUTRAL:
                     if adj:
                         possible_moves.append(point_to)
                     continue
@@ -110,7 +88,7 @@ class Halma:
             point_to = (point_to[0]+movement[0],point_to[1]+movement[1])
             if self.is_on_board(point_to):
                 # kalau sampingnya kosong, append lalu cek movenya
-                if self.is_valid_move(point, point_to) and (point_to not in possible_moves):
+                if self.board[point_to[0]][point_to[1]].kind == NEUTRAL and point_to not in possible_moves:
                     possible_moves.append(point_to)
                     self.get_possible_move(point_to, possible_moves, False)
 
