@@ -397,7 +397,7 @@ class Window(object):
     def move_bot(self, bot_player, using_ls):
         bot_from, bot_to = algoritma.find_next_move(self.halma.get_board_numeric(), bot_player, using_ls)
         self.move(bot_from, bot_to)
-        self.var_turn.set(TURN_LABEL[0 if self.human_player == 1 else 0])
+        self.var_turn.set(TURN_LABEL[0 if self.human_player == 1 else 1])
         self.var_turn_desc.set(TURN_LABEL_DESC[0])
         self.label_turn['fg'] = RED if self.human_player == 1 else GREEN
 
