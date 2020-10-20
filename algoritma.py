@@ -56,6 +56,9 @@ def minimax(depth, alpha, beta, is_max, player_on_move, board, using_local_searc
                                     cnt_in_goal+=1
 
                     if (cnt_in_goal==10):
+                        # undo move nya dulu 
+                        board[move[0]][move[1]] = 0
+                        board[i][j] = player_on_move
                         return 500, ((i, j), (move[0],move[1]))
                     
                     # hitung value minimax
@@ -194,14 +197,14 @@ if __name__=="__main__":
              [0,0,0,0,0,2,2,2],
              [0,0,0,0,2,2,2,2]]
 
-    # board = [[2, 2, 2, 0, 0, 0, 0, 0],
-    #         [2, 2, 0, 0, 0, 0, 0, 0],
+    # board = [[2, 2, 0, 2, 0, 0, 0, 0],
     #         [2, 2, 2, 2, 0, 0, 0, 0],
-    #         [2, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 1, 1],
-    #         [0, 0, 0, 0, 0, 0, 1, 0],
+    #         [2, 2, 0, 0, 0, 0, 0, 0],
+    #         [2, 0, 0, 0, 0, 0, 1, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 1],
+    #         [0, 0, 0, 0, 0, 0, 0, 1],
     #         [0, 0, 0, 0, 0, 1, 1, 1],
-    #         [0, 0, 0, 0, 1, 1, 1, 1]]
+    #         [0, 0, 0, 0, 1, 1, 1, 1],]
              
     start_awal = time.time()
     turn = 1
