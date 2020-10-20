@@ -3,7 +3,7 @@ import time
 
 cnt = [0, 0, 0, 0]
 
-def find_next_move(board, player_on_move, using_local_search=True):
+def find_next_move(board, player_on_move, using_local_search):
     '''
     input 
     board : array 2 dimensi, yang cell nya bernilai 0/1/2 
@@ -42,7 +42,25 @@ def minimax(depth, alpha, beta, is_max, player_on_move, board, using_local_searc
                     # jalanin move nya
                     board[move[0]][move[1]] = player_on_move
                     board[i][j] = 0
-                
+
+                    cnt_in_goal = 0
+                    if (player_on_move==1):
+                        for k in range(len_board):
+                            for l in range(len_board):
+                                if (board[k][l]==1 and is_daerah_player(2,k,l)):
+                                    cnt_in_goal+=1
+                    else:
+                        for k in range(len_board):
+                            for l in range(len_board):
+                                if (board[k][l]==2 and is_daerah_player(1,k,l)):
+                                    cnt_in_goal+=1
+
+                    if (cnt_in_goal==10):
+                        # undo move nya dulu 
+                        board[move[0]][move[1]] = 0
+                        board[i][j] = player_on_move
+                        return 500, ((i, j), (move[0],move[1]))
+                    
                     # hitung value minimax
                     val, _ = minimax(depth+1, alpha, beta, not is_max, player_on_move ^ 3, board, using_local_search)
 
@@ -86,7 +104,14 @@ def find_possible_moves(board, player_on_move, i, j, using_local_search=True):
                 list_possible_moves.append((i + x[k], j + y[k]))
             else:    # jika cell depannya ga kosong, coba lompat
                 try_to_jump((i,j), board, x, y, list_possible_moves)
-                 
+                
+    if (len(list_possible_moves)==0):
+        x = [-1,-1,-1,0,0,0,1,1,1]
+        y = [-1,0,1,-1,0,1,-1,0,1]
+        for k in range(9):
+            if (is_coor_valid(i + x[k], j + y[k], len_board)):
+                if (board[i + x[k]][j + y[k]]==0):
+                    list_possible_moves.append((i + x[k], j + y[k]))
 
     if (using_local_search): # kalau pake local search, tiap pawn cuma pilih 1 langkah terbaik (terdekat dengan goal)
         best_move = None
@@ -124,41 +149,45 @@ def utility_function(board, player_on_move):
     len_board = len(board)
 
     val = 0.0
+    cnt1 = 0
+    cnt2 = 0
     for i in range(len_board):
         for j in range(len_board):
             if (board[i][j]==1): # pawn player 1
-                val += find_distance((i,j), (len_board-1,len_board-1))               
+                val += find_distance((i,j), (len_board-1,len_board-1))  
+                if (is_daerah_player(2, i, j)):
+                    val -= 50 
+                    cnt1 += 1    
             elif (board[i][j]==2): # pawn player 2
                 val -= find_distance((i,j), (0,0))
+                if (is_daerah_player(1, i, j)):
+                    val += 50
+                    cnt2 += 1
+    
+    
 
     if (player_on_move==1):
+        if (cnt1==10):
+            val -= 500
         return val
     else:
+        if (cnt2==10):
+            val += 500
         return -val
 
 def find_distance(p1, p2):
     return sqrt((p1[0] - p2[0])*(p1[0] - p2[0]) + (p1[1] - p2[1])*(p1[1] - p2[1]))
 
+def is_daerah_player(player, x, y):
+    # asumsi koordinat valid, masuk ke area board
+    if (player==1):
+        return (x + y <= 3)
+    else:
+        return (x + y >= 11)
 
 if __name__=="__main__":
     # ini buat nyoba aja
     
-    # board = [[1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
-    #          [1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-    #          [1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
-    #          [1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
-    #          [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
-    #          [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    #          [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    #          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2],
-    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
-    #          [0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2],
-    #          [0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2],
-    #          [0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2],
-    #          [0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2],
-    #          [0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2]]
     board = [[1,1,1,1,0,0,0,0],
              [1,1,1,0,0,0,0,0],
              [1,1,0,0,0,0,0,0],
@@ -167,14 +196,25 @@ if __name__=="__main__":
              [0,0,0,0,0,0,2,2],
              [0,0,0,0,0,2,2,2],
              [0,0,0,0,2,2,2,2]]
+
+    # board = [[2, 2, 0, 2, 0, 0, 0, 0],
+    #         [2, 2, 2, 2, 0, 0, 0, 0],
+    #         [2, 2, 0, 0, 0, 0, 0, 0],
+    #         [2, 0, 0, 0, 0, 0, 1, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 1],
+    #         [0, 0, 0, 0, 0, 0, 0, 1],
+    #         [0, 0, 0, 0, 0, 1, 1, 1],
+    #         [0, 0, 0, 0, 1, 1, 1, 1],]
              
     start_awal = time.time()
     turn = 1
-    for _ in range(55):
+    for i in range(60):
+        print(i)
         start = time.time()
-        tup = find_next_move(board, turn, using_local_search=True)
+        tup = find_next_move(board, turn, using_local_search=False)
         if tup == None:
             break
+        print(turn)
         print(tup)
         board[tup[1][0]][tup[1][1]] = turn
         board[tup[0][0]][tup[0][1]] = 0
@@ -182,11 +222,12 @@ if __name__=="__main__":
         print(cnt)
         end = time.time()
         print(end-start)
+        for row in board:
+            print(row)
     end = time.time()
     print(end-start_awal)
 
-    for row in board:
-        print(row)
+    
 
 # belum bisa menang euy
 # mau tak ubah utility functionnya dulu
