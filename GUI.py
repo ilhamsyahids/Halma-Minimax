@@ -183,6 +183,7 @@ class Window(object):
                 self.tiles[i][j].bind("<Leave>", partial(self.on_leave_tile, x=i, y=j))  # hover leave
 
         self.run_number = 0
+        self.winner = 0
 
         if self.time_limit != 0:
             self.timer_start = timer()
@@ -197,7 +198,7 @@ class Window(object):
             self.move_bot(self.bot_player, using_ls)
 
     def update_timer(self):
-        if (self.time_limit != 0):
+        if self.time_limit != 0 and not self.winner:
             time_left = self.time_limit - floor(timedelta(seconds=timer() - self.timer_start).total_seconds())
             if time_left >= 0:
                 self.var_timer.set(time_left)
@@ -210,7 +211,7 @@ class Window(object):
                 self.update_timer()
 
     def run_bot_vs_bot(self):
-        if not self.halma.check_winner():  # ini cuma 30 turn, harusnya sampe ada yg menang / bisa di stop
+        if not self.winner:
             self.run_number += 1
             if self.run_number % 2 == 0:
                 self.play_bot_1()
@@ -283,13 +284,16 @@ class Window(object):
     
     def move(self, point_from, point_to):  # mindahin pawn di game dan di interface
         self.halma.move(point_from, point_to)
+        self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
+        self.tile_labels[point_from[0]][point_from[1]].config(fg=self.get_tile_color(point_from[0], point_from[1]))
         winner = self.halma.check_winner()
         if winner:
             print("winner: ", "Red" if winner == 1 else "Green")
+            self.show_winner(winner)
+            self.winner= winner
             # END GAME
-        self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
-        self.tile_labels[point_from[0]][point_from[1]].config(fg=self.get_tile_color(point_from[0], point_from[1]))
-        self.timer_start = timer()
+        else:
+            self.timer_start = timer()
 
     def move_bot(self, bot_player, using_ls):
         bot_from, bot_to = algoritma.find_next_move(self.halma.get_board_numeric(), bot_player, using_ls)
@@ -315,6 +319,11 @@ class Window(object):
         elif home_info == 2:
             return TILE_COLORS_GREEN[(x + y) % 2]
         return TILE_COLORS[(x + y) % 2]
+
+    def show_winner(self, winner):
+        window = Tk()
+        window.geometry("300x150")
+        Label(window, text=("Congrat, player "+ ("Red" if winner == 1 else "Green") + " win")).pack()
 
 app = Tk()
 Window = Window(app)
