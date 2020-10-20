@@ -9,7 +9,7 @@ from typing import Tuple
 import algoritma
 
 class Halma:
-    def __init__(self, board_size=8, time_limit=30, user_color=RED):
+    def __init__(self, board_size=16, time_limit=30, user_color=RED):
         self.board_size = board_size
         self.time_limit = time_limit
         self.user_color = user_color

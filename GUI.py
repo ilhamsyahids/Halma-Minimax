@@ -4,20 +4,20 @@ from tkinter import ttk
 
 import Halma
 
-# CONST
-BOARD_SIZE = 16
-
 # COLORS
 RED = "#C62828"
 GREEN = "#2E7D32"
 BLUE_GRAY = "#B0BEC5"
 LIGHT_BLUE_GRAY = "#ECEFF1"
 DARK_GRAY = "#212121"
+MAGENTA = "#880E4F"
+TILE_COLORS = (BLUE_GRAY, LIGHT_BLUE_GRAY)
 
 
 class Window(object):
 
     def __init__(self, master):
+        # Setup main window
         self.master = master
         self.master.title("Halma")
         self.master.resizable(True, True)
@@ -29,10 +29,10 @@ class Window(object):
         y_coordinate = int((screen_height / 2) - (window_height / 2))
         self.master.geometry("{}x{}+{}+{}".format(window_width, window_height, x_coordinate, y_coordinate))
 
-        self.frame_menu = Frame(self.master)
-        self.frame_menu.place(anchor="w", rely=0.5, width=240, height=400)
-
         # -- MENU --
+        self.frame_menu = Frame(self.master)
+        self.frame_menu.place(anchor="w", relx=0.01, rely=0.5, width=240, height=400)
+
         i_row = 0
 
         ttk.Separator(self.frame_menu, orient=HORIZONTAL).grid(row=i_row, column=0, sticky="we", pady=10)
@@ -69,7 +69,7 @@ class Window(object):
 
         ttk.Separator(self.frame_menu, orient=HORIZONTAL).grid(row=i_row, column=0, sticky="we", pady=10)
         i_row += 1
-        
+
         # TIME LIMIT
         self.label_time_limit = Label(self.frame_menu, text="Time Limit (seconds)", font=("Verdana", 10, "bold"))
         self.label_time_limit.grid(row=i_row, column=0, sticky="we")
@@ -77,7 +77,8 @@ class Window(object):
 
         self.var_time_limit = IntVar()
         self.var_time_limit.set(30)
-        self.scale_time_limit = Scale(self.frame_menu, variable=self.var_time_limit, from_=0, to=120, resolution=5, orient=HORIZONTAL)
+        self.scale_time_limit = Scale(self.frame_menu, variable=self.var_time_limit, from_=0, to=120, resolution=5,
+                                      orient=HORIZONTAL)
         self.scale_time_limit.grid(row=i_row, column=0, sticky="we")
         i_row += 1
 
@@ -93,29 +94,32 @@ class Window(object):
         self.frame_human_player.grid(row=i_row, column=0)
         i_row += 1
 
-        self.var_human_player = StringVar()
+        self.var_human_player = IntVar()
         self.var_human_player.set(1)
-    
-        self.radio_human_player_red = Radiobutton(self.frame_human_player, text="Red", value=1, variable=self.var_human_player)
-        self.radio_human_player_red.grid(row=0, column=0, sticky="we")
-        self.radio_human_player_green = Radiobutton(self.frame_human_player, text="Green", value=2, variable=self.var_human_player)
-        self.radio_human_player_green.grid(row=0, column=1, sticky="we")
 
+        self.radio_human_player_red = Radiobutton(self.frame_human_player, text="Red", value=1,
+                                                  variable=self.var_human_player)
+        self.radio_human_player_red.grid(row=0, column=0, sticky="we")
+        self.radio_human_player_green = Radiobutton(self.frame_human_player, text="Green", value=2,
+                                                    variable=self.var_human_player)
+        self.radio_human_player_green.grid(row=0, column=1, sticky="we")
 
         ttk.Separator(self.frame_menu, orient=HORIZONTAL).grid(row=i_row, column=0, sticky="we", pady=10)
         i_row += 1
-        
+
         # START GAME
-        self.button_start_game = Button(self.frame_menu, text="Start Game", font=("Verdana", 14, "bold"), bg=BLUE_GRAY, command=self.initiate_board)
+        self.button_start_game = Button(self.frame_menu, text="Start Game", font=("Verdana", 14, "bold"), bg=BLUE_GRAY,
+                                        command=self.start_game)
         self.button_start_game.grid(row=i_row, column=0)
 
-    def initiate_board(self):
+    def start_game(self):
         self.board_size = self.var_board_size.get()
         self.mode = self.var_mode.get()
         self.time_limit = self.var_time_limit.get()
         self.human_player = self.var_human_player.get()
 
         self.halma = Halma.Halma(self.board_size, self.time_limit, self.human_player)
+        print(self.halma)
 
         self.frame_board = Frame(self.master)
         self.frame_board.place(anchor="center", relx=0.5, rely=0.5, width=400, height=400)
@@ -123,24 +127,58 @@ class Window(object):
         for i in range(self.board_size):
             self.frame_board.columnconfigure(i, weight=1)
             self.frame_board.rowconfigure(i, weight=1)
-        tile_color = (BLUE_GRAY, LIGHT_BLUE_GRAY)
-        self.tiles = [[None for i in range(self.board_size)] for i in range(self.board_size)]
+
+        self.selected_tile = (-1, -1)
+
+        self.tiles = [[None for i in range(self.board_size)] for i in range(self.board_size)]  # tile border
+        self.tile_labels = [[None for i in range(self.board_size)] for i in range(self.board_size)]  # actual tile
         for i in range(self.board_size):
             for j in range(self.board_size):
+                tile_color = TILE_COLORS[(i + j) % 2]  # selang-seling warna tile
                 kind = self.halma.board[i][j].kind
-                color = RED if kind == Halma.RED else GREEN if kind == Halma.GREEN else "black"
-                self.tiles[i][j] = Label(self.frame_board, bg=tile_color[(i + j) % 2], bd=0, fg=color, text=u"\u2B24", font=("Helvetica", int(40-1.6*self.board_size), "bold"), anchor="center")
+                color = RED if kind == Halma.RED else GREEN if kind == Halma.GREEN else tile_color
+                self.tiles[i][j] = Frame(self.frame_board, bg=tile_color)
+                self.tile_labels[i][j] = Label(self.tiles[i][j], bg=tile_color, bd=0, fg=color, text=u"\u2B24",
+                                               font=("Helvetica", int(40 - 1.6 * self.board_size), "bold"),
+                                               anchor="center")
                 self.tiles[i][j].grid(row=i, column=j, sticky="nesw")
-                self.tiles[i][j].config(borderwidth=2, relief="flat")
-                self.tiles[i][j].bind("<Enter>", partial(self.on_enter_tile, btn=self.tiles[i][j]))
-                self.tiles[i][j].bind("<Leave>", partial(self.on_leave_tile, btn=self.tiles[i][j]))
-    
+                self.tile_labels[i][j].pack(padx=2, pady=2)
+                self.tiles[i][j].bind('<Button-1>', partial(self.on_click_tile, x=i, y=j))  # klik kiri mouse
+                self.tile_labels[i][j].bind('<Button-1>', partial(self.on_click_tile, x=i, y=j))
+                self.tiles[i][j].bind("<Enter>", partial(self.on_enter_tile, x=i, y=j))  # hover enter
+                self.tiles[i][j].bind("<Leave>", partial(self.on_leave_tile, x=i, y=j))  # hover leave
 
-    def on_enter_tile(self, e, btn):  # tile button on hover enter event
-        btn.config(relief="solid")
+    def on_enter_tile(self, e, x, y):  # tile button on hover enter event
+        self.tiles[x][y].config(bg=DARK_GRAY)
 
-    def on_leave_tile(self, e, btn):  # tile button on hover leave event
-        btn.config(relief="flat")
+    def on_leave_tile(self, e, x, y):  # tile button on hover leave event
+        if self.selected_tile != (x, y):
+            self.tiles[x][y].config(bg=TILE_COLORS[(x + y) % 2])
+        else:
+            self.tiles[x][y].config(bg=MAGENTA)
+
+    def on_click_tile(self, e, x, y):
+        if self.selected_tile == (x, y):  # deselect tile
+            self.tiles[x][y].config(bg=TILE_COLORS[(x + y) % 2])
+            self.selected_tile = (-1, -1)
+        elif self.selected_tile == (-1, -1):  # select a tile, sebelumnya belum ada yg di-select
+            self.tiles[x][y].config(bg=MAGENTA)
+            self.selected_tile = (x, y)
+        else:  # pindah selection ke tile lain
+            a, b = self.selected_tile  # tile yg di-select sebelumnya
+            if self.halma.board[a][b].kind == self.human_player and self.halma.board[x][y].kind == 0:  # bisa mindahin pawn
+                self.move((a, b), (x, y))
+                self.tiles[a][b].config(bg=TILE_COLORS[(a + b) % 2])
+                self.selected_tile = (-1, -1)
+            else:  # cuma pindah selection
+                self.tiles[a][b].config(bg=TILE_COLORS[(a + b) % 2])
+                self.tiles[x][y].config(bg=MAGENTA)
+                self.selected_tile = (x, y)
+
+    def move(self, point_from, point_to):  # mindahin pawn di game dan di interface
+        self.halma.move(point_from, point_to)
+        self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
+        self.tile_labels[point_from[0]][point_from[1]].config(fg=TILE_COLORS[(point_from[0] + point_from[1]) % 2])
 
 
 app = Tk()
