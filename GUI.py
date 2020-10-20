@@ -197,11 +197,13 @@ class Window(object):
             self.show_possible_moves()
         else:  # pindah selection ke tile lain
             a, b = self.selected_tile  # tile yg di-select sebelumnya
-            if self.halma.board[a][b].kind == self.human_player and self.halma.board[x][y].kind == 0:  # bisa mindahin pawn
+            possible_moves = []
+            self.halma.get_possible_move((a, b), possible_moves)
+            if self.halma.board[a][b].kind == self.human_player and self.halma.board[x][y].kind == 0 and (x, y) in possible_moves:  # bisa mindahin pawn
                 self.move((a, b), (x, y))
                 self.tiles[a][b].config(bg=TILE_COLORS[(a + b) % 2])
                 self.selected_tile = (-1, -1)
-
+                # move bot   
                 using_ls = self.mode == "Minimax+LS Bot vs Human"
                 self.move_bot(self.bot_player, using_ls)
             else:  # cuma pindah selection
