@@ -2,7 +2,9 @@ from tkinter import *
 from functools import partial
 from tkinter import ttk
 
+import asyncio
 import Halma
+import algoritma
 
 # COLORS
 RED = "#C62828"
@@ -11,7 +13,9 @@ BLUE_GRAY = "#B0BEC5"
 LIGHT_BLUE_GRAY = "#ECEFF1"
 DARK_GRAY = "#212121"
 MAGENTA = "#880E4F"
+YELLOW = "#ffe082"
 TILE_COLORS = (BLUE_GRAY, LIGHT_BLUE_GRAY)
+TARGET_COLORS = ("#000000", "#e57373", "#81c784")
 
 
 class Window(object):
@@ -117,6 +121,7 @@ class Window(object):
         self.mode = self.var_mode.get()
         self.time_limit = self.var_time_limit.get()
         self.human_player = self.var_human_player.get()
+        self.bot_player = 2 if self.human_player == 1 else 1
 
         self.halma = Halma.Halma(self.board_size, self.time_limit, self.human_player)
         print(self.halma)
@@ -147,6 +152,29 @@ class Window(object):
                 self.tile_labels[i][j].bind('<Button-1>', partial(self.on_click_tile, x=i, y=j))
                 self.tiles[i][j].bind("<Enter>", partial(self.on_enter_tile, x=i, y=j))  # hover enter
                 self.tiles[i][j].bind("<Leave>", partial(self.on_leave_tile, x=i, y=j))  # hover leave
+        
+        self.run_number = 0
+        
+        if self.mode == "Minimax vs Minimax+LS":
+            self.run_bot_vs_bot()
+        elif self.human_player == 2:  # bot jalan duluan
+            self.move_bot()
+    
+    def run_bot_vs_bot(self):
+        if self.run_number < 30:  # ini cuma 30 turn, harusnya sampe ada yg menang / bisa di stop
+            self.run_number += 1
+            if self.run_number % 2 == 0:
+                self.play_bot_1()
+            else:
+                self.play_bot_2()
+    
+    def play_bot_1(self):
+        self.move_bot(1, False)
+        self.master.after(500, self.run_bot_vs_bot)
+    
+    def play_bot_2(self):
+        self.move_bot(2, True)
+        self.master.after(500, self.run_bot_vs_bot)
 
     def on_enter_tile(self, e, x, y):  # tile button on hover enter event
         self.tiles[x][y].config(bg=DARK_GRAY)
@@ -158,6 +186,8 @@ class Window(object):
             self.tiles[x][y].config(bg=MAGENTA)
 
     def on_click_tile(self, e, x, y):
+        self.hide_possible_moves()
+        
         if self.selected_tile == (x, y):  # deselect tile
             self.tiles[x][y].config(bg=TILE_COLORS[(x + y) % 2])
             self.selected_tile = (-1, -1)
@@ -170,16 +200,38 @@ class Window(object):
                 self.move((a, b), (x, y))
                 self.tiles[a][b].config(bg=TILE_COLORS[(a + b) % 2])
                 self.selected_tile = (-1, -1)
+
+                using_ls = self.mode == "Minimax+LS Bot vs Human"
+                self.move_bot(self.bot_player, using_ls)
             else:  # cuma pindah selection
                 self.tiles[a][b].config(bg=TILE_COLORS[(a + b) % 2])
                 self.tiles[x][y].config(bg=MAGENTA)
                 self.selected_tile = (x, y)
+                
+        self.show_possible_moves()
+    
+    def show_possible_moves(self):
+        x, y = self.selected_tile
+        if (self.halma.board[x][y].kind == self.human_player):
+            possible_moves = []
+            self.halma.get_possible_move(self.selected_tile, possible_moves)
+            for p in possible_moves:
+                self.tile_labels[p[0]][p[1]].config(fg=TARGET_COLORS[self.human_player])
+    
+    def hide_possible_moves(self):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                if self.halma.board[i][j].kind == 0:
+                    self.tile_labels[i][j].config(fg=TILE_COLORS[(i + j) % 2])
 
     def move(self, point_from, point_to):  # mindahin pawn di game dan di interface
         self.halma.move(point_from, point_to)
         self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
         self.tile_labels[point_from[0]][point_from[1]].config(fg=TILE_COLORS[(point_from[0] + point_from[1]) % 2])
 
+    def move_bot(self, bot_player, using_ls):
+        bot_from, bot_to = algoritma.find_next_move(self.halma.get_board_numeric(), bot_player, using_ls)
+        self.move(bot_from, bot_to)
 
 app = Tk()
 Window = Window(app)
