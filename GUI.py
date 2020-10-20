@@ -194,6 +194,7 @@ class Window(object):
         elif self.selected_tile == (-1, -1):  # select a tile, sebelumnya belum ada yg di-select
             self.tiles[x][y].config(bg=MAGENTA)
             self.selected_tile = (x, y)
+            self.show_possible_moves()
         else:  # pindah selection ke tile lain
             a, b = self.selected_tile  # tile yg di-select sebelumnya
             if self.halma.board[a][b].kind == self.human_player and self.halma.board[x][y].kind == 0:  # bisa mindahin pawn
@@ -207,12 +208,11 @@ class Window(object):
                 self.tiles[a][b].config(bg=TILE_COLORS[(a + b) % 2])
                 self.tiles[x][y].config(bg=MAGENTA)
                 self.selected_tile = (x, y)
-                
-        self.show_possible_moves()
-    
+                self.show_possible_moves()
+
     def show_possible_moves(self):
         x, y = self.selected_tile
-        if (self.halma.board[x][y].kind == self.human_player):
+        if self.halma.board[x][y].kind == self.human_player:
             possible_moves = []
             self.halma.get_possible_move(self.selected_tile, possible_moves)
             for p in possible_moves:
