@@ -75,11 +75,6 @@ class Halma:
             board.append(row_el)
         return board
 
-    def computer_turn(self):
-        move = algoritma.find_next_move(self.get_board_numeric(), \
-            RED if self.user_color==GREEN else GREEN)
-        self.move(move[0], move[1])
-
     def get_possible_move(self, point, possible_moves=[], adj=True):
         for movement in MOVEMENTS:
             point_to = (point[0]+movement[0],point[1]+movement[1])
@@ -105,8 +100,6 @@ if __name__ == "__main__":
     print(halma)
     print(halma.check_winner())
     arr = []
-    halma.get_possible_move((3,0),arr,True)
+    halma.get_possible_move((3,0),arr)
     print(arr)
     print(halma.get_board_numeric())
-    halma.computer_turn()
-    print(halma)
