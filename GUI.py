@@ -283,6 +283,10 @@ class Window(object):
     
     def move(self, point_from, point_to):  # mindahin pawn di game dan di interface
         self.halma.move(point_from, point_to)
+        winner = self.halma.check_winner()
+        if winner:
+            print("winner: ", "Red" if winner == 1 else "Green")
+            # END GAME
         self.tile_labels[point_to[0]][point_to[1]].config(fg=self.tile_labels[point_from[0]][point_from[1]]['fg'])
         self.tile_labels[point_from[0]][point_from[1]].config(fg=self.get_tile_color(point_from[0], point_from[1]))
         self.timer_start = timer()
