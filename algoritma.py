@@ -8,7 +8,6 @@ def find_next_move(board, player_on_move, using_local_search):
     input 
     board : array 2 dimensi, yang cell nya bernilai 0/1/2 
     player on move: 1/2
-
     ouput
     best_move: ((Xawal, Yawal), (Xakhir, Yakhir))
     '''
@@ -59,7 +58,11 @@ def minimax(depth, alpha, beta, is_max, player_on_move, board, using_local_searc
                         # undo move nya dulu 
                         board[move[0]][move[1]] = 0
                         board[i][j] = player_on_move
-                        return 500, ((i, j), (move[0],move[1]))
+                        if (player_on_move==1):
+                            return 500, ((i, j), (move[0],move[1]))
+                        else:
+                            return 500, ((i, j), (move[0],move[1]))
+
                     
                     # hitung value minimax
                     val, _ = minimax(depth+1, alpha, beta, not is_max, player_on_move ^ 3, board, using_local_search)
@@ -117,6 +120,7 @@ def find_possible_moves(board, player_on_move, i, j, using_local_search=True):
         best_move = None
         best_val = float("inf") 
         goal = (len_board-1, len_board-1) if player_on_move==1 else (0, 0)
+        filtered_list_possibles_moves = []
         for move in list_possible_moves:
             is_move_on_goal = False
             if (player_on_move==1):
@@ -126,36 +130,19 @@ def find_possible_moves(board, player_on_move, i, j, using_local_search=True):
                 if (is_daerah_player(1,move[0],move[1], len_board)):
                     is_move_on_goal = True
 
-            is_move_before_on_goal = False
-            if (not (best_move == None)):
-                if (player_on_move==1):
-                    if (is_daerah_player(2,best_move[0],best_move[1], len_board)):
-                        is_move_on_goal = True
-                else:
-                    if (is_daerah_player(1,best_move[0],best_move[1], len_board)):
-                        is_move_on_goal = True
 
-            if (is_move_on_goal and (not (is_move_before_on_goal==None)) and is_move_before_on_goal):
-                val = find_distance(move, goal) - 50
-                if (val < best_val):
-                    best_move = move
-                    best_val = val
-            elif (is_move_on_goal):
-                val = find_distance(move, goal) - 50
-                best_move = move
-                best_val = val
-            elif ((not is_move_on_goal) and (not (is_move_before_on_goal==None)) and (not is_move_before_on_goal)):
-                val = find_distance(move, goal)
-                if (val < best_val):
-                    best_move = move
-                    best_val = val
-            elif((not is_move_on_goal) and (is_move_before_on_goal==None)):
+            if (is_move_on_goal):
+                filtered_list_possibles_moves.append(move)
+            else:
                 val = find_distance(move, goal)
                 if (val < best_val):
                     best_move = move
                     best_val = val
 
-        list_possible_moves = [best_move]
+        if (len(filtered_list_possibles_moves)==0):
+            return [best_move]
+        else:
+            return filtered_list_possibles_moves
 
     return list_possible_moves
 
@@ -240,7 +227,7 @@ if __name__=="__main__":
              
     start_awal = time.time()
     turn = 1
-    for i in range(60):
+    for i in range(65):
         print(i)
         start = time.time()
         tup = find_next_move(board, turn, using_local_search=True)
@@ -258,5 +245,3 @@ if __name__=="__main__":
             print(row)
     end = time.time()
     print(end-start_awal)
-
-    
