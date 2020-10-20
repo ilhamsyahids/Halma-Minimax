@@ -124,7 +124,6 @@ class Window(object):
         self.bot_player = 2 if self.human_player == 1 else 1
 
         self.halma = Halma.Halma(self.board_size, self.time_limit, self.human_player)
-        print(self.halma)
 
         self.frame_board = Frame(self.master)
         self.frame_board.place(anchor="center", relx=0.5, rely=0.5, width=400, height=400)
@@ -158,7 +157,8 @@ class Window(object):
         if self.mode == "Minimax vs Minimax+LS":
             self.run_bot_vs_bot()
         elif self.human_player == 2:  # bot jalan duluan
-            self.move_bot()
+            using_ls = self.mode == "Minimax+LS Bot vs Human"
+            self.move_bot(self.bot_player, using_ls)
     
     def run_bot_vs_bot(self):
         if self.run_number < 30:  # ini cuma 30 turn, harusnya sampe ada yg menang / bisa di stop
