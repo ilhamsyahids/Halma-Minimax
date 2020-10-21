@@ -31,8 +31,8 @@ class Halma:
         return s
 
     def move(self, point_from:Tuple, point_to:Tuple):
-        self.board[point_to[0]][point_to[1]] = self.board[point_from[0]][point_from[1]]
-        self.board[point_from[0]][point_from[1]] = Pawn(point_from[0], point_from[1])
+        self.board[point_to[0]][point_to[1]].kind = self.board[point_from[0]][point_from[1]].kind
+        self.board[point_from[0]][point_from[1]].kind = NEUTRAL
 
     def get_home_info(self, x, y):
         if x + y < 4:
@@ -74,23 +74,59 @@ class Halma:
             board.append(row_el)
         return board
 
-    def get_possible_move(self, point, possible_moves=[], adj=True):
+    def get_possible_move(self, point, possible_moves=[], adj=True, depth=0):
+        possible_moves.append(point)
         for movement in MOVEMENTS:
             point_to = (point[0]+movement[0],point[1]+movement[1])
             # cek apa di dalam board
             if self.is_on_board(point_to):
                 # kalau sampingnya kosong, append jika adj true
-                if self.board[point_to[0]][point_to[1]].kind == NEUTRAL:
-                    if adj:
-                        possible_moves.append(point_to)
+                if self.is_empty_cell(point_to):
+                    # validasi move
+                    if self.is_valid_move(point, point_to):
+                        if adj and (point_to not in possible_moves):
+                            possible_moves.append(point_to)
                     continue
-            # coba lompat
-            point_to = (point_to[0]+movement[0],point_to[1]+movement[1])
-            if self.is_on_board(point_to):
-                # kalau sampingnya kosong, append lalu cek movenya
-                if self.board[point_to[0]][point_to[1]].kind == NEUTRAL and point_to not in possible_moves:
-                    possible_moves.append(point_to)
-                    self.get_possible_move(point_to, possible_moves, False)
+                # coba lompat
+                point_to = (point_to[0]+movement[0],point_to[1]+movement[1])
+                if self.is_on_board(point_to):
+                    # kalau sampingnya kosong, append lalu cek movenya
+                    if self.is_valid_move(point, point_to) and point_to not in possible_moves:
+                        possible_moves.append(point_to)
+                        self.move(point, point_to) # dipindah dulu
+                        self.get_possible_move(point_to, possible_moves, False, depth+1)
+                        self.move(point_to, point) # dibalikin lagi
+        possible_moves.remove(point)
+        if depth==0:
+            print(point, possible_moves)
+            print(self)
+
+    def is_valid_move(self, point_from, point_to):
+        '''
+        Validasi masuk/keluar home/target
+        '''
+        kind_from = self.board[point_from[0]][point_from[1]].kind
+        kind_to = self.board[point_to[0]][point_to[1]].kind
+        res = kind_to == NEUTRAL
+        if res:
+            if kind_from==RED:
+                # udah masuk target, gak boleh keluar dari target
+                if point_from[0]+point_from[1] > 2*(self.board_size-3):
+                    res = point_to[0]+point_to[1] > 2*(self.board_size-3)
+                # udah keluar home, gak boleh masuk ke home
+                elif not (point_from[0]+point_from[1]<4):
+                    res = not (point_to[0]+point_to[1]<4)
+            elif kind_from==GREEN:
+                # udah masuk target, gak boleh keluar dari target
+                if point_from[0]+point_from[1]<4:
+                    res = point_to[0]+point_to[1]<4
+                # udah keluar home, gak boleh masuk ke home
+                elif not (point_from[0]+point_from[1] > 2*(self.board_size-3)):
+                    res = not (point_to[0]+point_to[1] > 2*(self.board_size-3))
+        return res
+
+    def is_empty_cell(self, point):
+        return self.board[point[0]][point[1]].kind == NEUTRAL
 
 
 if __name__ == "__main__":
