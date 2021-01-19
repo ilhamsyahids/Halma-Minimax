@@ -1,4 +1,5 @@
 # Halma-Minimax
+AI bot to play Halma game, based on Minimax strategy
 
 ## How To Run
 
